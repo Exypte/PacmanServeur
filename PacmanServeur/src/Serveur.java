@@ -12,7 +12,7 @@ public class Serveur {
 	private Socket clientSocket;
 	private DataInputStream in;
 	private DataOutputStream out;
-	private ArrayList<ClientHandler> handlers;
+	public static ArrayList<ClientHandler> handlers;
 
 	public Serveur() {
 		try {
@@ -48,6 +48,14 @@ public class Serveur {
 		}
 	}
 
+	public static void quitterServeur(Socket so) {
+		for(ClientHandler ch : handlers) {
+			if(ch.getClientSocket() == so) {
+				handlers.remove(ch);
+			}
+		}
+	}
+	
 	public static synchronized void broadcast(Socket so, String msg, String nom) {
 		
 	}

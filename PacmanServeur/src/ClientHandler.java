@@ -43,11 +43,21 @@ public class ClientHandler implements Runnable{
 					this.out.writeUTF("RESTART");
 				}else if(action.equals("PAUSE")) {
 					this.out.writeUTF("PAUSE");
+				}else if(action.equals("EXIT")) {
+					Serveur.quitterServeur(clientSocket);
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public Socket getClientSocket() {
+		return clientSocket;
+	}
+
+	public void setClientSocket(Socket clientSocket) {
+		this.clientSocket = clientSocket;
 	}
 }
