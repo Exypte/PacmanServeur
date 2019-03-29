@@ -28,6 +28,7 @@ public class Maze implements Serializable{
 	private int size_x;
 	private int size_y;
 	
+	private boolean isScarred;
 	/** 
 	 * Les elements du labyrinthe
 	 */
@@ -193,6 +194,16 @@ public class Maze implements Serializable{
 	public void setGhosts_start(ArrayList<PositionAgent> ghosts_start) {
 		this.ghosts_start = ghosts_start;
 	}
+
+	public boolean isScarred() {
+		return isScarred;
+	}
+
+	public void setScarred(boolean isScarred) {
+		this.isScarred = isScarred;
+	}
+	
+	
 }
 
 
