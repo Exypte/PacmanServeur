@@ -77,7 +77,7 @@ public class ClientHandler implements Runnable{
 				}else if(action.equals("DROITE")) {
 					this.pacmanGame.getJoueur1().setAgentAction(new AgentAction(Maze.EAST));
 					this.pacmanGame.step();
-				}else if(action.equals("HAUTE")) {
+				}else if(action.equals("HAUT")) {
 					this.pacmanGame.getJoueur1().setAgentAction(new AgentAction(Maze.NORTH));
 					this.pacmanGame.step();
 				}
