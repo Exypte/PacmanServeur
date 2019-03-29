@@ -18,7 +18,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import Controler.InterfaceControler;
-import Model.Maze;
 import Model.PacmanGame;
 
 public class ViewCommand implements Observateur {
