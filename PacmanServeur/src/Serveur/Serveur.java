@@ -48,9 +48,9 @@ public class Serveur {
 		}
 	}
 
-	public static void quitterServeur(Socket so) {
+	public static void quitterServeur() {
 		for(ClientHandler ch : handlers) {
-			if(ch.getClientSocket() == so) {
+			if(ch.getClientSocket() == null) {
 				handlers.remove(ch);
 			}
 		}
