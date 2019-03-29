@@ -42,6 +42,15 @@ public class PacmanGame extends Game {
 	
 	private String mapName;
 
+	public PacmanGame() {
+		this.fantomes = new ArrayList<Agent>();
+		this.pacmans = new ArrayList<Agent>();
+		this.positionPacmanSave = new ArrayList<>();
+
+		this.joueur1 = new Joueur1();
+		this.joueur2 = new Joueur2();
+	}
+	
 	public PacmanGame(String mapName) throws Exception {
 
 		this.mapName = mapName;

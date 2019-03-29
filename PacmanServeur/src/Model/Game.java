@@ -18,6 +18,7 @@ public abstract class Game implements Runnable,Subject{
 	private Thread thread;
 	/* Temps d'arrêt après chaque tour du jeu*/
 	private long time = 1000;
+	private final Object lock = new Object();
 	
 	private  List<Observateur> obs = new ArrayList<Observateur>();
 
@@ -59,7 +60,10 @@ public abstract class Game implements Runnable,Subject{
 			this.lapCount++;
 			
 			try {
-				Thread.sleep(time);
+				synchronized (lock) {
+					lock.notify();
+					Thread.sleep(time);
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -162,6 +166,7 @@ public abstract class Game implements Runnable,Subject{
 	public void setObs(List<Observateur> obs) {
 		this.obs = obs;
 	}
-	
-	
+	public Object getLock() {
+		return lock;
+	}
 }

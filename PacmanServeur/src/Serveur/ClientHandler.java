@@ -9,8 +9,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import javax.swing.plaf.SliderUI;
-
 import Command.AgentAction;
 import Model.Maze;
 import Model.PacmanGame;
@@ -20,12 +18,11 @@ public class ClientHandler implements Runnable{
 	private Socket clientSocket;
 	private DataInputStream in;
 	private DataOutputStream out;
-	
+
 	private PacmanGame pacmanGame;
 	private Maze maze;
-	
-	private boolean envoiMaze = false;
-	
+
+	private boolean envoiMaze;
 
 	public ClientHandler(Socket clientSocket) {
 		// TODO Auto-generated constructor stub
@@ -35,6 +32,9 @@ public class ClientHandler implements Runnable{
 			this.in = new DataInputStream(this.clientSocket.getInputStream());
 			/* Return l'output stream du socket */
 			this.out = new DataOutputStream(this.clientSocket.getOutputStream());
+
+			this.pacmanGame = new PacmanGame();
+			envoiMaze = false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -44,41 +44,35 @@ public class ClientHandler implements Runnable{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
-	
-		
-		Thread ecoute= new Thread(new Runnable() {
+
+		Thread ecoute = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				
+
 				while(true) {
 					try {
 						/* Ecoute l'action effectue sur la commande */
 						String action = in.readUTF();
-						
+
 						if(action.equals("RESTART")) {
 							System.out.println("RESTART");
-							
+
+							envoiMaze = false;
+
 							/* Ecoute la map envoyer par l'utilisateur */
 							String map = in.readUTF();
-							
+
 							try {
-								pacmanGame = new PacmanGame("layouts/"+map);
+								//pacmanGame = new PacmanGame("layouts/" + map);
+								pacmanGame.setMapName("layouts/" + map);
 								pacmanGame.setLabyrinth(new Maze(pacmanGame.getMapName()));
 								pacmanGame.init();
+
 								ObjectOutputStream oos = new ObjectOutputStream(out);
-								
 								maze = pacmanGame.getLabyrinth();
-								if(pacmanGame.isGhostScarred()) {
-									maze.setScarred(true);
-								}else{
-									maze.setScarred(false);
-								}
-								System.out.println("sending object");
-								oos.writeObject(maze);
-								System.out.println("object send");	
+								oos.writeObject(maze);	
 							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -88,44 +82,34 @@ public class ClientHandler implements Runnable{
 							envoiMaze = true;
 							pacmanGame.start();
 							pacmanGame.launch();
-
 						}else if(action.equals("STEP")) {
 							System.out.println("STEP");
 							pacmanGame.step();
+							ObjectOutputStream oos = new ObjectOutputStream(out);
+							maze = pacmanGame.getLabyrinth();
+							oos.writeObject(maze);	
 						}else if(action.equals("PAUSE")) {
 							System.out.println("PAUSE");
-							pacmanGame.stop();
 							envoiMaze = false;
+							pacmanGame.stop();
 						}else if(action.equals("EXIT")) {
 							Serveur.quitterServeur();
 							break;
 						}else if(action.equals("GAUCHE")) {
 							pacmanGame.getJoueur1().setAgentAction(new AgentAction(Maze.WEST));
-						//	this.pacmanGame.step();
+							//	this.pacmanGame.step();
 						}else if(action.equals("BAS")) {
 							pacmanGame.getJoueur1().setAgentAction(new AgentAction(Maze.SOUTH));
 							//this.pacmanGame.step();
 						}else if(action.equals("DROITE")) {
 							pacmanGame.getJoueur1().setAgentAction(new AgentAction(Maze.EAST));
-							pacmanGame.step();
+							//pacmanGame.step();
 						}else if(action.equals("HAUT")) {
 							pacmanGame.getJoueur1().setAgentAction(new AgentAction(Maze.NORTH));
 							//this.pacmanGame.step();
 						}
-//
-//						ObjectOutputStream oos = new ObjectOutputStream(out);
-//						
-//						this.maze = this.pacmanGame.getLabyrinth();
-//						if(this.pacmanGame.isGhostScarred()) {
-//							this.maze.setScarred(true);
-//						}else{
-//							this.maze.setScarred(false);
-//						}
-//						System.out.println("sending object");
-//						oos.writeObject(this.maze);
-//						System.out.println("object send");
 					}catch(SocketException e) {
-						System.out.println("Client déconnecté.");
+						System.out.println("Client dï¿½connectï¿½.");
 						Serveur.quitterServeur();
 						break;
 					} catch (IOException e) {
@@ -136,49 +120,45 @@ public class ClientHandler implements Runnable{
 				}
 
 			}});
-		
-		
-		
-		Thread envoi= new Thread(new Runnable() {
+
+
+
+		Thread envoi = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
 				while(true) {
-				try {
-					System.out.println("envoi map : "+envoiMaze);
+					try {
+						synchronized (pacmanGame.getLock()) {
+							pacmanGame.getLock().wait();
 
-					if(envoiMaze) {
-						System.out.println("envoi map");
-						ObjectOutputStream oos = new ObjectOutputStream(out);
-						
-						maze = pacmanGame.getLabyrinth();
-						if(pacmanGame.isGhostScarred()) {
-							maze.setScarred(true);
-						}else{
-							maze.setScarred(false);
+							ObjectOutputStream oos = new ObjectOutputStream(out);
+							maze = pacmanGame.getLabyrinth();
+
+							if(pacmanGame.isGhostScarred()) {
+								maze.setScarred(true);
+							}else{
+								maze.setScarred(false);
+							}
+
+							oos.writeObject(maze);
 						}
-						System.out.println("sending object");
-						oos.writeObject(maze);
-						System.out.println("object send");
-						Thread.sleep(1000);
-					}
-				}catch(SocketException e) {
-					System.out.println("Client déconnecté.");
-					//Serveur.quitterServeur();
-					break;
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					break;
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
+					}catch(SocketException e) {
+						System.out.println("Client dï¿½connectï¿½.");
+						break;
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						break;
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
 				}
 
 			}});
-		
+
 		ecoute.start();
 		envoi.start();
 	}
