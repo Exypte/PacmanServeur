@@ -12,6 +12,10 @@ import Command.PositionAgent;
 
 public class Maze implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** 
 	 * Les differentes directions possibles pour les actions et les orientations des agents
 	 */

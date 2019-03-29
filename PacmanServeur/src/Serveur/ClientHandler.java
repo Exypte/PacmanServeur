@@ -42,14 +42,14 @@ public class ClientHandler implements Runnable{
 				/* Ecoute l'action effectue sur la commande */
 				String action = this.in.readUTF();
 				
-				if(action.equals("INIT")) {
-					System.out.println("INIT");
+				if(action.equals("RESTART")) {
+					System.out.println("RESTART");
 					
 					/* Ecoute la map envoyer par l'utilisateur */
-					String map = this.in.readUTF();
+					//String map = this.in.readUTF();
 					
 					try {
-						this.pacmanGame = new PacmanGame(map);
+						this.pacmanGame = new PacmanGame("C:\\Users\\Thierry\\git\\Pacman_serveur\\PacmanServeur\\layouts\\mediumClassic.lay");
 						pacmanGame.setLabyrinth(new Maze(pacmanGame.getMapName()));
 						pacmanGame.init();
 					} catch (Exception e) {
@@ -85,11 +85,14 @@ public class ClientHandler implements Runnable{
 				ObjectOutputStream oos = new ObjectOutputStream(out);
 				
 				this.maze = this.pacmanGame.getLabyrinth();
+				System.out.println("sending object");
 				oos.writeObject(this.maze);
-				oos.close();
+				System.out.println("object send");
+			
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				break;
 			}
 		}
 	}
