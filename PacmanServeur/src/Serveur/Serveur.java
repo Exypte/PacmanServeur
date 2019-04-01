@@ -55,21 +55,13 @@ public class Serveur {
 				String mdp = this.in.readUTF();
 				System.out.println(mdp);
 
-//				/* Chargement du driver JDBC pour MySQL */
-//				try {
-//					Class.forName( "com.mysql.jdbc.Driver" );
-//				} catch ( ClassNotFoundException e ) {
-//					/* Gérer les éventuelles erreurs ici. */
-//				}
-
 				/* Connexion à la base de données */
-				String url = "jdbc:mysql://localhost:3306/test";
+				String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 				String utilisateur = "root";
-				String motDePasse = "666it24H";
+				String motDePasse = "";
 				String requete = "SELECT * FROM utilisateur WHERE login='"+login+"' AND mdp='"+mdp+"';";
 				try {
 					connexion = DriverManager.getConnection( url, utilisateur, motDePasse );
-					System.out.println(requete);
 					statement = connexion.createStatement();
 					resultat = statement.executeQuery(requete);
 					if(resultat.next()) {
@@ -79,6 +71,7 @@ public class Serveur {
 					}
 				} catch ( SQLException e ) {
 					/* Gérer les éventuelles erreurs ici */
+					System.out.println(e.getMessage());
 				} finally {
 					if ( resultat != null ) {
 						try {
@@ -106,7 +99,7 @@ public class Serveur {
 				if(connectionOk) {
 					this.out.writeBoolean(connectionOk);
 
-					ClientHandler ch = new ClientHandler(this.clientSocket);
+					ClientHandler ch = new ClientHandler(this.clientSocket, login);
 
 					Thread t = new Thread(ch);
 					t.start();
@@ -114,7 +107,7 @@ public class Serveur {
 					handlers.add(ch);
 				}else {
 					this.out.writeBoolean(connectionOk);
-					this.clientSocket.close();;
+					this.clientSocket.close();
 				}
 
 			} catch (IOException e) {

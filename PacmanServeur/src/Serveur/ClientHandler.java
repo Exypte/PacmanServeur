@@ -22,9 +22,7 @@ public class ClientHandler implements Runnable{
 	private PacmanGame pacmanGame;
 	private Maze maze;
 
-	private boolean envoiMaze;
-
-	public ClientHandler(Socket clientSocket) {
+	public ClientHandler(Socket clientSocket, String pseudo) {
 		// TODO Auto-generated constructor stub
 		try {
 			this.clientSocket = clientSocket;
@@ -34,7 +32,7 @@ public class ClientHandler implements Runnable{
 			this.out = new DataOutputStream(this.clientSocket.getOutputStream());
 
 			this.pacmanGame = new PacmanGame();
-			envoiMaze = false;
+			this.pacmanGame.setPseudo(pseudo);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,8 +57,6 @@ public class ClientHandler implements Runnable{
 						if(action.equals("RESTART")) {
 							System.out.println("RESTART");
 
-							envoiMaze = false;
-
 							/* Ecoute la map envoyer par l'utilisateur */
 							String map = in.readUTF();
 
@@ -79,7 +75,6 @@ public class ClientHandler implements Runnable{
 							}
 						}else if(action.equals("START")) {
 							System.out.println("START");
-							envoiMaze = true;
 							pacmanGame.start();
 							pacmanGame.launch();
 						}else if(action.equals("STEP")) {
@@ -90,7 +85,6 @@ public class ClientHandler implements Runnable{
 							oos.writeObject(maze);	
 						}else if(action.equals("PAUSE")) {
 							System.out.println("PAUSE");
-							envoiMaze = false;
 							pacmanGame.stop();
 						}else if(action.equals("EXIT")) {
 							Serveur.quitterServeur();
@@ -112,7 +106,10 @@ public class ClientHandler implements Runnable{
 						System.out.println("Client d�connect�.");
 						Serveur.quitterServeur();
 						break;
-					} catch (IOException e) {
+					}catch (EOFException e) {
+						// TODO: handle exception
+						break;
+					}catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						break;

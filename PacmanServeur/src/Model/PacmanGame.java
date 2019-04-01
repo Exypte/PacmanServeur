@@ -1,6 +1,11 @@
 package Model;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +45,14 @@ public class PacmanGame extends Game {
 	private boolean ghostScarred = false;
 	private int turnScarred = 0;
 	
+	private String pseudo;
+	
 	private String mapName;
 
+	private Connection connexion;
+	private Statement statement;
+	private ResultSet resultat;
+	
 	public PacmanGame() {
 		this.fantomes = new ArrayList<Agent>();
 		this.pacmans = new ArrayList<Agent>();
@@ -214,6 +225,41 @@ public class PacmanGame extends Game {
 	@Override
 	public void gameOver() {
 		// TODO Auto-generated method stub
+		/* Connexion à la base de données */
+		String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+		String utilisateur = "root";
+		String motDePasse = "";
+		String requete = "SELECT * FROM utilisateur WHERE login='"+pseudo+"';";
+		try {
+			connexion = DriverManager.getConnection( url, utilisateur, motDePasse );
+			statement = connexion.createStatement();
+			resultat = statement.executeQuery(requete);
+		} catch ( SQLException e ) {
+			/* Gérer les éventuelles erreurs ici */
+			System.out.println(e.getMessage());
+		} finally {
+			if ( resultat != null ) {
+				try {
+					/* On commence par fermer le ResultSet */
+					resultat.close();
+				} catch ( SQLException ignore ) {
+				}
+			}
+			if ( statement != null ) {
+				try {
+					/* Puis on ferme le Statement */
+					statement.close();
+				} catch ( SQLException ignore ) {
+				}
+			}
+			if ( connexion != null ) {
+				try {
+					/* Et enfin on ferme la connexion */
+					connexion.close();
+				} catch ( SQLException ignore ) {
+				}
+			}
+		}
 		this.setRunning(false);
 	}
 
@@ -425,4 +471,14 @@ public class PacmanGame extends Game {
 	public void setVies(int vies) {
 		this.vies = vies;
 	}
+
+	public String getPseudo() {
+		return pseudo;
+	}
+
+	public void setPseudo(String pseudo) {
+		this.pseudo = pseudo;
+	}
+	
+	
 }
