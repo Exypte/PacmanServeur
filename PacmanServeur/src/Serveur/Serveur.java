@@ -56,10 +56,10 @@ public class Serveur {
 				System.out.println(mdp);
 
 				/* Connexion à la base de données */
-				String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+				String url = "jdbc:mysql://localhost:3306/jee_pacman?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 				String utilisateur = "root";
-				String motDePasse = "";
-				String requete = "SELECT * FROM utilisateur WHERE login='"+login+"' AND mdp='"+mdp+"';";
+				String motDePasse = "root";
+				String requete = "SELECT * FROM joueurs WHERE pseudo='"+login+"' AND password='"+mdp+"';";
 				try {
 					connexion = DriverManager.getConnection( url, utilisateur, motDePasse );
 					statement = connexion.createStatement();

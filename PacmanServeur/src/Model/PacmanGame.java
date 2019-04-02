@@ -3,6 +3,7 @@ package Model;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -44,15 +45,15 @@ public class PacmanGame extends Game {
 	private boolean pacmanWin = true;
 	private boolean ghostScarred = false;
 	private int turnScarred = 0;
-	
+
 	private String pseudo;
-	
+
 	private String mapName;
 
 	private Connection connexion;
 	private Statement statement;
 	private ResultSet resultat;
-	
+
 	public PacmanGame() {
 		this.fantomes = new ArrayList<Agent>();
 		this.pacmans = new ArrayList<Agent>();
@@ -61,7 +62,7 @@ public class PacmanGame extends Game {
 		this.joueur1 = new Joueur1();
 		this.joueur2 = new Joueur2();
 	}
-	
+
 	public PacmanGame(String mapName) throws Exception {
 
 		this.mapName = mapName;
@@ -74,18 +75,18 @@ public class PacmanGame extends Game {
 		this.joueur1 = new Joueur1();
 		this.joueur2 = new Joueur2();
 	}
-	
+
 	private void jouerBruitage(String filename) {
 		try {
-	        AudioInputStream audioIn;
+			AudioInputStream audioIn;
 			audioIn = AudioSystem.getAudioInputStream(new File(filename));
-	        Clip clip = AudioSystem.getClip();
-	        clip.stop();
-	        clip.setFramePosition(0);
-	        clip.open(audioIn);
-	        clip.start();
+			Clip clip = AudioSystem.getClip();
+			clip.stop();
+			clip.setFramePosition(0);
+			clip.open(audioIn);
+			clip.start();
 		} catch (Exception e) {
-			
+
 		}
 	}
 
@@ -117,15 +118,15 @@ public class PacmanGame extends Game {
 			this.positionPacmanSave.add(new PositionAgent(position.getX(), position.getY(), position.getDir()));
 			this.pacmans.add(pacman);
 		}
-		
+
 		if(this.j1) {
 			this.pacmans.get(0).setStrategie(joueur1);
 		}
-		
+
 		if(this.j2) {
 			this.fantomes.get(0).setStrategie(joueur2);
 		}
-		
+
 		jouerBruitage("resource/sons/pacman_beginning.wav");
 	}
 
@@ -151,7 +152,7 @@ public class PacmanGame extends Game {
 				f.setStrategie(new PoursuitePacman());
 			}
 			moveAgent(f, f.getStrategie().getAction(f, labyrinth));
-			
+
 		}
 
 		if (this.ghostScarred) {
@@ -184,28 +185,28 @@ public class PacmanGame extends Game {
 				}
 			}
 		}
-		
+
 		for(Agent p : this.pacmans) {
 			newPosPacman.add(p.getPosition());
 		}
-		
+
 		for(Agent f : this.fantomes) {
 			newPosFantome.add(f.getPosition());
 		}
-		
+
 		this.labyrinth.setPacman_start(newPosPacman);
 		this.labyrinth.setGhosts_start(newPosFantome);
-		
+
 		if(this.turnScarred == this.getLapCount()) {
 			this.ghostScarred = false;
 		}
-		
+
 		if(this.pacmans.size() <= 0) {
 			this.gameOver();
 			notifier("Fantome win");
 			JOptionPane.showMessageDialog(null, "Les fantomes ont gagnés la partie !", "PacmanGame", JOptionPane.INFORMATION_MESSAGE);
 		}
-		
+
 		this.pacmanWin = true;
 		for(int i = 0; i < this.labyrinth.getSizeX(); i++) {
 			for(int j = 0; j < this.labyrinth.getSizeY(); j++) {
@@ -214,7 +215,7 @@ public class PacmanGame extends Game {
 				}
 			}
 		}
-		
+
 		if(this.pacmanWin) {
 			this.gameOver();
 			notifier("Pacman win");
@@ -226,40 +227,37 @@ public class PacmanGame extends Game {
 	public void gameOver() {
 		// TODO Auto-generated method stub
 		/* Connexion à la base de données */
-		String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+		String url = "jdbc:mysql://localhost:3306/jee_pacman?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		String utilisateur = "root";
-		String motDePasse = "";
-		String requete = "SELECT * FROM utilisateur WHERE login='"+pseudo+"';";
+		String motDePasse = "root";
+		String requeteJoueur = "SELECT * FROM joueurs WHERE pseudo=\""+pseudo+"\";";
+
 		try {
 			connexion = DriverManager.getConnection( url, utilisateur, motDePasse );
 			statement = connexion.createStatement();
-			resultat = statement.executeQuery(requete);
+			resultat = statement.executeQuery(requeteJoueur);
+
+			int id;
+
+			if(resultat.next()) {
+				
+				id=resultat.getInt("id");
+				PreparedStatement preparedStmt=null;
+				
+				String requeteScore = "INSERT INTO scores(idJoueur,score) VALUES (?,?);";
+				
+				preparedStmt= connexion.prepareStatement(requeteScore);
+				preparedStmt.setInt(1, id);
+				preparedStmt.setInt(2, scores);
+				
+				preparedStmt.executeUpdate();
+			}
+			resultat.close();
+			statement.close();
 		} catch ( SQLException e ) {
 			/* Gérer les éventuelles erreurs ici */
 			System.out.println(e.getMessage());
-		} finally {
-			if ( resultat != null ) {
-				try {
-					/* On commence par fermer le ResultSet */
-					resultat.close();
-				} catch ( SQLException ignore ) {
-				}
-			}
-			if ( statement != null ) {
-				try {
-					/* Puis on ferme le Statement */
-					statement.close();
-				} catch ( SQLException ignore ) {
-				}
-			}
-			if ( connexion != null ) {
-				try {
-					/* Et enfin on ferme la connexion */
-					connexion.close();
-				} catch ( SQLException ignore ) {
-				}
-			}
-		}
+		} 
 		this.setRunning(false);
 	}
 
@@ -479,6 +477,6 @@ public class PacmanGame extends Game {
 	public void setPseudo(String pseudo) {
 		this.pseudo = pseudo;
 	}
-	
-	
+
+
 }
