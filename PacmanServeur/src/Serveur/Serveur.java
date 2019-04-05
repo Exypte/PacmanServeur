@@ -58,7 +58,7 @@ public class Serveur {
 				/* Connexion à la base de données */
 				String url = "jdbc:mysql://localhost:3306/jee_pacman?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 				String utilisateur = "root";
-				String motDePasse = "root";
+				String motDePasse = "666it24H";
 				String requete = "SELECT * FROM joueurs WHERE pseudo='"+login+"' AND password='"+mdp+"';";
 				try {
 					connexion = DriverManager.getConnection( url, utilisateur, motDePasse );

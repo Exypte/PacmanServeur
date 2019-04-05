@@ -9,6 +9,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import Command.AgentAction;
 import Model.Maze;
 import Model.PacmanGame;
@@ -66,9 +69,12 @@ public class ClientHandler implements Runnable{
 								pacmanGame.setLabyrinth(new Maze(pacmanGame.getMapName()));
 								pacmanGame.init();
 
-								ObjectOutputStream oos = new ObjectOutputStream(out);
 								maze = pacmanGame.getLabyrinth();
-								oos.writeObject(maze);	
+								
+								Gson gson = new Gson();
+								String s = gson.toJson(maze);
+															
+								out.writeUTF(s);	
 							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -129,8 +135,8 @@ public class ClientHandler implements Runnable{
 					try {
 						synchronized (pacmanGame.getLock()) {
 							pacmanGame.getLock().wait();
-
-							ObjectOutputStream oos = new ObjectOutputStream(out);
+							
+							//ObjectOutputStream oos = new ObjectOutputStream(out);
 							maze = pacmanGame.getLabyrinth();
 
 							if(pacmanGame.isGhostScarred()) {
@@ -139,7 +145,11 @@ public class ClientHandler implements Runnable{
 								maze.setScarred(false);
 							}
 
-							oos.writeObject(maze);
+							
+							Gson gson = new Gson();
+							String s = gson.toJson(maze);
+														
+							out.writeUTF(s);
 						}
 					}catch(SocketException e) {
 						System.out.println("Client d�connect�.");

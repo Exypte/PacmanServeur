@@ -229,7 +229,7 @@ public class PacmanGame extends Game {
 		/* Connexion à la base de données */
 		String url = "jdbc:mysql://localhost:3306/jee_pacman?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		String utilisateur = "root";
-		String motDePasse = "root";
+		String motDePasse = "666it24H";
 		String requeteJoueur = "SELECT * FROM joueurs WHERE pseudo=\""+pseudo+"\";";
 
 		try {

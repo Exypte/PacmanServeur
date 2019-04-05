@@ -18,6 +18,7 @@ public abstract class Game implements Runnable,Subject{
 	private Thread thread;
 	/* Temps d'arrêt après chaque tour du jeu*/
 	private long time = 500;
+	
 	private final Object lock = new Object();
 	
 	private  List<Observateur> obs = new ArrayList<Observateur>();
