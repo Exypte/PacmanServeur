@@ -203,7 +203,6 @@ public class PacmanGame extends Game {
 
 		if(this.pacmans.size() <= 0) {
 			this.gameOver();
-			notifier("Fantome win");
 			JOptionPane.showMessageDialog(null, "Les fantomes ont gagnés la partie !", "PacmanGame", JOptionPane.INFORMATION_MESSAGE);
 		}
 
@@ -218,7 +217,6 @@ public class PacmanGame extends Game {
 
 		if(this.pacmanWin) {
 			this.gameOver();
-			notifier("Pacman win");
 			JOptionPane.showMessageDialog(null, "Le pacman a gagné la partie !", "PacmanGame", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}

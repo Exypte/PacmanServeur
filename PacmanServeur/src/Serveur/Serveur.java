@@ -18,10 +18,6 @@ public class Serveur {
 	private DataInputStream in;
 	private DataOutputStream out;
 	public static ArrayList<ClientHandler> handlers;
-	boolean connectionOk;
-	Connection connexion = null;
-	Statement statement = null;
-	ResultSet resultat = null;
 
 	public Serveur() {
 		try {
@@ -48,67 +44,13 @@ public class Serveur {
 				/* Return l'output stream du socket */
 				this.out = new DataOutputStream(this.clientSocket.getOutputStream());
 
-				this.out.writeUTF("Login : ");
-				String login = this.in.readUTF();
-				System.out.println(login);
-				this.out.writeUTF("Mot de passe : ");
-				String mdp = this.in.readUTF();
-				System.out.println(mdp);
+				ClientHandler ch = new ClientHandler(this.clientSocket, "");
 
-				/* Connexion à la base de données */
-				String url = "jdbc:mysql://localhost:3306/jee_pacman?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-				String utilisateur = "root";
-				String motDePasse = "666it24H";
-				String requete = "SELECT * FROM joueurs WHERE pseudo='"+login+"' AND password='"+mdp+"';";
-				try {
-					connexion = DriverManager.getConnection( url, utilisateur, motDePasse );
-					statement = connexion.createStatement();
-					resultat = statement.executeQuery(requete);
-					if(resultat.next()) {
-						connectionOk = true;
-					}else {
-						connectionOk = false;
-					}
-				} catch ( SQLException e ) {
-					/* Gérer les éventuelles erreurs ici */
-					System.out.println(e.getMessage());
-				} finally {
-					if ( resultat != null ) {
-						try {
-							/* On commence par fermer le ResultSet */
-							resultat.close();
-						} catch ( SQLException ignore ) {
-						}
-					}
-					if ( statement != null ) {
-						try {
-							/* Puis on ferme le Statement */
-							statement.close();
-						} catch ( SQLException ignore ) {
-						}
-					}
-					if ( connexion != null ) {
-						try {
-							/* Et enfin on ferme la connexion */
-							connexion.close();
-						} catch ( SQLException ignore ) {
-						}
-					}
-				}
+				Thread t = new Thread(ch);
+				t.start();
 
-				if(connectionOk) {
-					this.out.writeBoolean(connectionOk);
+				handlers.add(ch);
 
-					ClientHandler ch = new ClientHandler(this.clientSocket, login);
-
-					Thread t = new Thread(ch);
-					t.start();
-
-					handlers.add(ch);
-				}else {
-					this.out.writeBoolean(connectionOk);
-					this.clientSocket.close();
-				}
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

@@ -3,10 +3,7 @@ package Model;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import View.Observateur;
-
-public abstract class Game implements Runnable,Subject{
+public abstract class Game implements Runnable{
 
 	/* Compteur de nombre de tours */
 	private int lapCount;
@@ -20,8 +17,6 @@ public abstract class Game implements Runnable,Subject{
 	private long time = 500;
 	
 	private final Object lock = new Object();
-	
-	private  List<Observateur> obs = new ArrayList<Observateur>();
 
 	public abstract void initializeGame();
 	public abstract void takeTurn();
@@ -35,7 +30,6 @@ public abstract class Game implements Runnable,Subject{
 		
 		this.initializeGame();
 		
-		notifier("Init Simple game");
 	}
 	
 	/*
@@ -44,10 +38,8 @@ public abstract class Game implements Runnable,Subject{
 	public void step() {
 		if( lapCount > maxLapCount ){
 			this.gameOver();
-			notifier("Game Over !");
 		}else {	
 			this.takeTurn();
-			notifier("Take Turn !");
 		}
 	}
 	
@@ -92,29 +84,6 @@ public abstract class Game implements Runnable,Subject{
 		thread = new Thread(this);
 		thread.start();
 	}
-
-	@Override
-	public void enregistrerObservateur(Observateur o) {
-		// TODO Auto-generated method stub
-		obs.add(o);
-
-	}
-
-	@Override
-	public void removeObservateur(Observateur o) {
-		// TODO Auto-generated method stub
-		obs.remove(o);
-
-	}
-	
-	@Override
-	public void notifier(String text) {
-		// TODO Auto-generated method stub
-		for(Observateur o: obs) {
-			o.actualiser(text);
-		}
-	}
-	
 	/*
 	 * Getters
 	 */
@@ -138,9 +107,6 @@ public abstract class Game implements Runnable,Subject{
 		return time;
 	}
 	
-	public List<Observateur> getObs() {
-		return obs;
-	}
 	
 	/*
 	 * Setters
@@ -164,9 +130,6 @@ public abstract class Game implements Runnable,Subject{
 		this.time = time;
 	}
 	
-	public void setObs(List<Observateur> obs) {
-		this.obs = obs;
-	}
 	public Object getLock() {
 		return lock;
 	}
